@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Wellness Move 2026 — Certificate Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="jszip.min.js"></script>
+<style>
+:root{
+  --blue:#2563EB;--blue-glow:#38BDF8;--blue-bright:#00D4FF;
+  --violet:#A855F7;--violet-glow:#D8B4FE;
+  --green:#14F195;--green-glow:#6EE7B7;
+  --darker:#050813;--card-bg:rgba(13,19,38,0.72);--card-border:rgba(56,189,248,0.15);
+  --text:#F1F5F9;--text2:rgba(241,245,249,0.72);
+  --enduro:#FB7185;--ascend:#FBBF24;--gold:#FFD700;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:14px;}
+body{font-family:'Outfit',sans-serif;background:var(--darker);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.bg::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle at 15% 20%,rgba(37,99,235,.18)0%,transparent 40%),
+            radial-gradient(circle at 85% 25%,rgba(168,85,247,.15)0%,transparent 40%),
+            radial-gradient(circle at 50% 85%,rgba(20,241,149,.1)0%,transparent 40%);
+  animation:bgp 18s ease-in-out infinite;}
+@keyframes bgp{0%,100%{transform:translate(0,0);}50%{transform:translate(2%,-1%);}}
+.grid-bg{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(rgba(255,255,255,.018)1px,transparent 1px),
+             linear-gradient(90deg,rgba(255,255,255,.018)1px,transparent 1px);
+  background-size:55px 55px;
+  mask-image:radial-gradient(ellipse at center,black 30%,transparent 85%);}
+#particles{position:fixed;inset:0;z-index:1;pointer-events:none;width:100%;height:100%;}
+.wrap{max-width:620px;margin:0 auto;padding:32px 18px;position:relative;z-index:2;}
+
+/* HEADER */
+.hdr{text-align:center;margin-bottom:22px;}
+.wm-logo-wrap{display:flex;justify-content:center;margin:4px auto 6px;}
+.wm-logo{width:min(300px,66vw);height:auto;display:block;
+  mix-blend-mode:lighten;
+  filter:drop-shadow(0 8px 30px rgba(56,189,248,.22));
+  animation:logoIn .7s cubic-bezier(.2,.8,.2,1) both;}
+@keyframes logoIn{from{opacity:0;transform:translateY(-10px) scale(.97);}to{opacity:1;transform:none;}}
+.hdr-s2{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:9px;line-height:1;margin-top:2px;
+  background:linear-gradient(135deg,var(--blue-bright),var(--violet-glow),var(--green));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 2px 14px rgba(56,189,248,.35));}
+@media(max-width:480px){.hdr-s2{font-size:1.9rem;letter-spacing:6px;}}
+.hdr-bar{width:130px;height:3px;background:linear-gradient(90deg,#FB7185,var(--violet),var(--blue-glow),var(--green));
+  border-radius:3px;margin:12px auto;box-shadow:0 0 18px rgba(56,189,248,.55);}
+.hdr-sub{font-size:.72rem;color:var(--text2);letter-spacing:2px;text-transform:uppercase;}
+.hdr-badge{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:6px 18px;border-radius:50px;
+  font-size:.72rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+  background:rgba(20,241,149,.1);border:1px solid rgba(20,241,149,.32);color:var(--green-glow);}
+
+/* PANES */
+.pane{display:none;animation:fadeUp .4s ease-out;}
+.pane.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* CARD (shared shell) */
+.pcard{background:linear-gradient(160deg,rgba(20,28,54,.78),rgba(10,15,32,.72));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1px solid var(--card-border);border-radius:20px;padding:30px 26px 26px;position:relative;overflow:hidden;}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--blue),var(--violet),var(--green));}
+.pcard::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% -20%,rgba(255,255,255,.06),transparent 60%);pointer-events:none;}
+.pcard h2{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2.5px;color:var(--text);margin-bottom:6px;}
+.pcard .lead{font-size:.82rem;color:var(--text2);line-height:1.65;margin-bottom:22px;font-weight:300;}
+
+/* SEGMENTED TOGGLE */
+.fg{margin-bottom:20px;position:relative;}
+label{display:block;font-size:.66rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:2px;margin-bottom:9px;}
+.seg-toggle{display:flex;gap:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:4px;}
+.seg-btn{flex:1;padding:11px 8px;border:none;border-radius:9px;background:transparent;
+  color:var(--text2);font-family:'Outfit',sans-serif;font-weight:700;font-size:.78rem;letter-spacing:.8px;
+  text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.seg-btn.active{background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.4);}
+.seg-btn[data-type="guest"].active{background:linear-gradient(135deg,var(--violet),var(--blue-glow));box-shadow:0 4px 14px rgba(168,85,247,.4);}
+
+/* PIN INPUT */
+.pwd-wrap{position:relative;display:flex;align-items:center;}
+.pwd-wrap input{padding-right:46px;}
+.eye-btn{position:absolute;right:13px;background:none;border:none;cursor:pointer;
+  color:rgba(255,255,255,.4);font-size:1.05rem;padding:0;line-height:1;transition:color .2s;}
+.eye-btn:hover{color:rgba(255,255,255,.9);}
+input{width:100%;padding:13px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);
+  border-radius:12px;font-size:.92rem;color:#fff;outline:none;font-family:'Outfit',sans-serif;
+  transition:border-color .2s,background .2s,box-shadow .2s;}
+input::placeholder{color:rgba(255,255,255,.25);}
+input:focus{border-color:var(--blue-glow);background:rgba(56,189,248,.08);box-shadow:0 0 0 3px rgba(56,189,248,.16);}
+
+.hint-box{margin-top:11px;background:rgba(56,189,248,.07);border-left:2px solid rgba(56,189,248,.4);
+  border-radius:0 10px 10px 0;padding:10px 14px;font-size:.74rem;color:var(--text2);line-height:1.6;}
+.hint-box b{color:var(--blue-glow);}
+
+/* BUTTONS */
+.btn-go{width:100%;padding:14px;background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;
+  border:none;border-radius:50px;font-size:.9rem;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;
+  cursor:pointer;font-family:'Outfit',sans-serif;margin-top:8px;transition:.25s;box-shadow:0 4px 16px rgba(37,99,235,.32);}
+.btn-go:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(56,189,248,.42);}
+.btn-go:active{transform:translateY(0);}
+.btn-go:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none;}
+
+.err{display:none;background:rgba(251,113,133,.1);border:1px solid rgba(251,113,133,.3);color:var(--enduro);
+  padding:11px 14px;border-radius:10px;font-size:.78rem;margin-top:16px;text-align:center;}
+
+.footer{text-align:center;font-size:.66rem;color:rgba(255,255,255,.32);margin-top:26px;letter-spacing:.6px;line-height:1.8;}
+.footer strong{color:rgba(255,255,255,.5);font-weight:700;letter-spacing:1px;}
+.footer a{color:var(--blue-glow);text-decoration:none;}
+.footer a:hover{text-decoration:underline;}
+
+/* CERTIFICATE VIEW */
+.cert-topbar{background:var(--card-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--card-border);border-radius:18px;padding:18px 24px;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;position:relative;overflow:hidden;}
+.cert-topbar::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--blue),var(--violet),var(--green));}
+.cert-name{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:2.5px;
+  background:linear-gradient(135deg,#fff,rgba(255,255,255,.78));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;}
+.cert-sub{font-size:.78rem;color:var(--text2);margin-top:3px;font-weight:300;}
+.topbar-acts{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.btn-dl{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:50px;cursor:pointer;
+  font-family:'Outfit',sans-serif;font-weight:800;font-size:.78rem;letter-spacing:1px;text-transform:uppercase;color:#fff;
+  border:1px solid rgba(56,189,248,.5);background:linear-gradient(135deg,var(--blue),var(--violet));
+  box-shadow:0 4px 16px rgba(37,99,235,.3);transition:.25s;}
+.btn-dl:hover{transform:translateY(-2px);box-shadow:0 7px 24px rgba(56,189,248,.45);border-color:rgba(56,189,248,.85);}
+.btn-dl:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-bk{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:var(--card-bg);
+  backdrop-filter:blur(10px);border:1px solid var(--card-border);border-radius:50px;color:var(--text2);
+  font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:.22s;
+  text-transform:uppercase;letter-spacing:.8px;}
+.btn-bk:hover{border-color:rgba(56,189,248,.5);color:var(--text);background:rgba(56,189,248,.1);}
+
+.cert-viewer{background:var(--card-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--card-border);border-radius:18px;padding:22px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;position:relative;overflow:hidden;}
+.cert-viewer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--blue),var(--violet),var(--green));}
+.cert-block{width:100%;}
+.cat-badge{display:inline-flex;align-items:center;gap:6px;margin:0 auto 10px;padding:5px 16px;border-radius:50px;
+  font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:.95rem;}
+.cat-badge-wrap{text-align:center;}
+.cat-badge.stride{background:linear-gradient(135deg,rgba(37,99,235,.18),rgba(168,85,247,.14));
+  border:1px solid rgba(37,99,235,.4);color:#93C5FD;}
+.cat-badge.ride{background:linear-gradient(135deg,rgba(251,113,133,.18),rgba(251,191,36,.14));
+  border:1px solid rgba(251,113,133,.4);color:#FCA5A5;}
+.cert-block img{width:100%;height:auto;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.5);display:block;}
+.cert-loading,.cert-error{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:56px 20px;gap:16px;color:var(--text2);font-size:.86rem;text-align:center;}
+.spinner{width:34px;height:34px;border:3px solid rgba(37,99,235,.3);border-top-color:var(--blue-glow);
+  border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+@media(max-width:480px){.pcard{padding:26px 18px}.cert-topbar{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="grid-bg"></div>
+<canvas id="particles" aria-hidden="true"></canvas>
+
+<div class="wrap">
+
+  <div class="hdr">
+    <div class="wm-logo-wrap"><img class="wm-logo" src="assets/wm-logo.png" alt="Wellness Move 2026 Season 2"></div>
+    <div class="hdr-s2">CERTIFICATE PORTAL</div>
+    <div class="hdr-bar"></div>
+    <div class="hdr-sub">Wellness Move 2026 &middot; Season 2 &nbsp;&middot;&nbsp; 13-Week Challenge</div>
+    <div class="hdr-badge">&#127942;&nbsp; Congratulations, Finishers!</div>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="pane active" id="pane-login">
+    <div class="pcard">
+      <h2>ACCESS YOUR CERTIFICATE</h2>
+      <p class="lead">Congratulations on finishing the challenge! Tell us who you are below to view and download your official Certificate of Participation.</p>
+
+      <div class="fg">
+        <label>I am an...</label>
+        <div class="seg-toggle">
+          <button type="button" class="seg-btn active" id="typeFinisherBtn" data-type="finisher">Employee</button>
+          <button type="button" class="seg-btn" id="typeGuestBtn" data-type="guest">Plus-1 Guest</button>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label for="pI">PIN</label>
+        <div class="pwd-wrap">
+          <input type="password" id="pI" placeholder="Enter your PIN" autocomplete="off">
+          <button class="eye-btn" type="button" id="eyeBtn" title="Show/hide PIN">&#128065;</button>
+        </div>
+        <div class="hint-box" id="hintBox">
+          &#128161; Your PIN is your <b>last name + birth year</b>.<br>
+          Example: last name <b>Dela Cruz</b>, birth year <b>1990</b> &rarr; <b>DelaCruz1990</b>
+        </div>
+      </div>
+
+      <button class="btn-go" id="goBtn">VIEW MY CERTIFICATE &rarr;</button>
+      <div class="err" id="er">&#10060; PIN not recognized. Please check and try again.</div>
+    </div>
+  </div>
+
+  <!-- CERTIFICATE VIEW -->
+  <div class="pane" id="pane-cert">
+    <div class="cert-topbar">
+      <div>
+        <div class="cert-name" id="cn">CONGRATULATIONS!</div>
+        <div class="cert-sub" id="cs">&mdash;</div>
+      </div>
+      <div class="topbar-acts">
+        <button class="btn-dl" id="dlBtn">&#11015; Download</button>
+        <button class="btn-bk" id="cvBackBtn">&#8592; Back</button>
+      </div>
+    </div>
+    <div class="cert-viewer" id="certViewer"></div>
+  </div>
+
+  <div class="footer">Wellness Move 2026 &middot; Season 2 &middot; Certificate Portal &nbsp;&middot;&nbsp; Presented by <strong>INFOSOFT CONSULTING CORPORATION</strong><br>
+    Questions? <a href="mailto:hr.information@infosoft.com.ph">hr.information@infosoft.com.ph</a>
+  </div>
+
+</div><!-- /wrap -->
+
+<script src="data.js"></script>
+<script>
+function normalize(s){ return (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, ''); }
+
+let state = { loginType: 'finisher', matches: [] };
+
+function setLoginType(type){
+  state.loginType = type;
+  document.getElementById('typeFinisherBtn').classList.toggle('active', type === 'finisher');
+  document.getElementById('typeGuestBtn').classList.toggle('active', type === 'guest');
+  const hint = document.getElementById('hintBox');
+  if (type === 'finisher'){
+    hint.innerHTML = '&#128161; Your PIN is your <b>last name + birth year</b>.<br>Example: last name <b>Dela Cruz</b>, birth year <b>1990</b> &rarr; <b>DelaCruz1990</b>';
+  } else {
+    hint.innerHTML = '&#128161; Your PIN is your <b>last name + your goal distance in KM</b>.<br>Example: last name <b>Santos</b>, goal <b>50 KM</b> &rarr; <b>Santos50</b>';
+  }
+  document.getElementById('er').style.display = 'none';
+}
+
+function showScreen(id){
+  ['pane-login','pane-cert'].forEach(s => {
+    document.getElementById(s).classList.toggle('active', s === id);
+  });
+}
+
+function attemptLogin(){
+  const pin = normalize(document.getElementById('pI').value);
+  const er = document.getElementById('er');
+  if (!pin){
+    er.textContent = 'Please enter your PIN.';
+    er.style.display = 'block';
+    return;
+  }
+  const pool = FINISHERS.filter(r => r.source === state.loginType);
+  const matches = pool.filter(r => normalize(r.pin) === pin);
+  if (!matches.length){
+    er.textContent = 'PIN not recognized. Please check and try again.';
+    er.style.display = 'block';
+    document.getElementById('pI').value = '';
+    document.getElementById('pI').focus();
+    return;
+  }
+  er.style.display = 'none';
+  openCertificates(matches);
+}
+
+function openCertificates(records){
+  state.matches = records;
+  const first = records[0];
+  document.getElementById('cn').textContent = first.name.toUpperCase();
+  if (records.length === 1){
+    document.getElementById('cs').innerHTML =
+      `${first.category === 'STRIDE' ? 'Stride' : 'Ride'} &middot; ${first.level}${first.award ? ' &middot; ' + first.award : ''}`;
+  } else {
+    document.getElementById('cs').innerHTML =
+      `${records.length} certificates &mdash; ` + records.map(r => (r.category === 'STRIDE' ? 'Stride' : 'Ride')).join(' & ');
+  }
+
+  const viewer = document.getElementById('certViewer');
+  viewer.innerHTML = records.map((r, i) => `
+    <div class="cert-block">
+      ${records.length > 1 ? `<div class="cat-badge-wrap"><span class="cat-badge ${r.category === 'STRIDE' ? 'stride' : 'ride'}">${r.category === 'STRIDE' ? 'STRIDE' : 'RIDE'} &mdash; ${r.level}</span></div>` : ''}
+      <div class="cert-loading" id="certLoading${i}"><div class="spinner"></div><span>Loading your certificate&hellip;</span></div>
+      <img id="certImg${i}" src="" alt="Certificate for ${r.name}" style="display:none">
+      <div class="cert-error" id="certError${i}" style="display:none">
+        <div style="font-size:2.5rem;">&#128196;</div>
+        <p>Certificate image could not be loaded.</p>
+      </div>
+    </div>
+  `).join('');
+
+  records.forEach((r, i) => {
+    const img = document.getElementById(`certImg${i}`);
+    const load = document.getElementById(`certLoading${i}`);
+    const err = document.getElementById(`certError${i}`);
+    img.onload = () => { load.style.display = 'none'; img.style.display = 'block'; };
+    img.onerror = () => { load.style.display = 'none'; err.style.display = 'flex'; };
+    img.src = 'certs/' + r.filename;
+  });
+
+  showScreen('pane-cert');
+}
+
+async function downloadCertificates(){
+  const records = state.matches;
+  if (!records.length) return;
+  const btn = document.getElementById('dlBtn');
+  const originalLabel = btn.innerHTML;
+
+  if (records.length === 1){
+    const a = document.createElement('a');
+    a.href = 'certs/' + records[0].filename;
+    a.download = records[0].filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    return;
+  }
+
+  // Multiple certificates (e.g. finished both Stride and Ride) — bundle into one ZIP
+  btn.disabled = true;
+  btn.textContent = 'Preparing ZIP…';
+  try {
+    const zip = new JSZip();
+    for (const r of records){
+      const resp = await fetch('certs/' + r.filename);
+      const blob = await resp.blob();
+      zip.file(r.filename, blob);
+    }
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = slugName(records[0].name) + '_WellnessMove2026_Certificates.zip';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  } catch (e){
+    alert("Couldn't prepare the download. Please try again.");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalLabel;
+  }
+}
+
+function slugName(text){
+  return text.replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
+
+function backToLogin(){
+  showScreen('pane-login');
+  document.getElementById('pI').value = '';
+  document.getElementById('er').style.display = 'none';
+  state.matches = [];
+}
+
+document.getElementById('typeFinisherBtn').addEventListener('click', () => setLoginType('finisher'));
+document.getElementById('typeGuestBtn').addEventListener('click', () => setLoginType('guest'));
+document.getElementById('goBtn').addEventListener('click', attemptLogin);
+document.getElementById('eyeBtn').addEventListener('click', () => {
+  const inp = document.getElementById('pI');
+  const btn = document.getElementById('eyeBtn');
+  if (inp.type === 'password'){ inp.type = 'text'; btn.innerHTML = '&#128064;'; }
+  else { inp.type = 'password'; btn.innerHTML = '&#128065;'; }
+});
+document.getElementById('cvBackBtn').addEventListener('click', backToLogin);
+document.getElementById('dlBtn').addEventListener('click', downloadCertificates);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && document.getElementById('pane-login').classList.contains('active')) attemptLogin();
+});
+</script>
+
+<script>
+/* ===== Moving particles — float/rise upward like bubbles ===== */
+(function(){
+  var canvas=document.getElementById('particles');
+  if(!canvas)return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ctx=canvas.getContext('2d');
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  var W=0,H=0,particles=[];
+  var COLORS=[[0,212,255],[20,241,149],[168,85,247],[216,180,254],[110,231,183]];
+  function rand(a,b){return a+Math.random()*(b-a);}
+  function makeParticle(atBottom){
+    var c=COLORS[(Math.random()*COLORS.length)|0];
+    return {
+      x:rand(0,W),
+      y:atBottom?H+rand(0,40):rand(0,H),
+      r:rand(1,2.8),
+      vy:rand(0.18,0.55),
+      drift:rand(-0.14,0.14),
+      sway:rand(0.4,1.1),
+      phase:rand(0,Math.PI*2),
+      color:c,
+      baseA:rand(0.35,0.9),
+      tw:rand(0,Math.PI*2),tws:rand(0.6,1.6)
+    };
+  }
+  function resize(){
+    W=canvas.clientWidth;H=canvas.clientHeight;
+    canvas.width=W*dpr;canvas.height=H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    var target=Math.round(Math.min(46,Math.max(16,(W*H)/26000)));
+    particles=[];
+    for(var i=0;i<target;i++)particles.push(makeParticle(false));
+  }
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+    for(var i=0;i<particles.length;i++){
+      var p=particles[i];
+      p.y-=p.vy;
+      p.x+=p.drift+Math.sin(t*0.0006*p.sway+p.phase)*0.25;
+      var lifeA=p.y<H*0.18?Math.max(0,p.y/(H*0.18)):1;
+      if(p.y<-12){Object.assign(p,makeParticle(true));continue;}
+      if(p.x<-12)p.x=W+12;else if(p.x>W+12)p.x=-12;
+      var a=p.baseA*lifeA*(0.6+0.4*Math.sin(t*0.001*p.tws+p.tw));
+      var c=p.color;
+      ctx.beginPath();
+      var g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*5);
+      g.addColorStop(0,'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')');
+      g.addColorStop(0.4,'rgba('+c[0]+','+c[1]+','+c[2]+','+(a*0.35)+')');
+      g.addColorStop(1,'rgba('+c[0]+','+c[1]+','+c[2]+',0)');
+      ctx.fillStyle=g;
+      ctx.arc(p.x,p.y,p.r*5,0,Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+Math.min(1,a+0.15)+')';
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  function drawStatic(){
+    ctx.clearRect(0,0,W,H);
+    for(var i=0;i<particles.length;i++){
+      var p=particles[i],c=p.color;
+      ctx.beginPath();
+      ctx.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+p.baseA+')';
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
+  resize();
+  var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){resize();if(reduce)drawStatic();},150);});
+  if(reduce)drawStatic();else requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
